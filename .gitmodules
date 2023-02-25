@@ -1,0 +1,3 @@
+[submodule "tf-modules"]
+	path = terraform/tf-modules
+	url = git@github.com:axxander/tf-modules.git
