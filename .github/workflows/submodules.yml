@@ -3,6 +3,7 @@ name: Create PR for new submodule releases
 on:
   schedule:
     - cron: '0 0 * * *'  # once a day, at midnight
+  workflow_dispatch:  # able to manually trigger
 
 jobs:
   build:
