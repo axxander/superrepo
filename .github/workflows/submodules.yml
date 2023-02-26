@@ -20,13 +20,13 @@ jobs:
         SUBMODULE_HASH=`git ls-tree HEAD | awk '{print $3}'`
         PARENT_HASH=`cat .gitmodules | grep "id = tf-modules" -A3 | awk 'FNR == 3 {print $3}'`
         if [ $SUBMODULE_HASH != $PARENT_HASH ]; then
-          echo "::set-output name=updated::true"
+          echo "updated=true" >> $GITHUB_OUTPUT
         else
-          echo "::set-output name=updated::false"
+          echo "updated=false" >> $GITHUB_OUTPUT
         fi
     - name: Create PR
       if: steps.check_changes.outputs.updated == 'true'
-      uses: peter-evans/create-pull-request@v3
+      uses: peter-evans/create-pull-request@v4
       with:
         commit-message: 'Update tf-modules to latest version'
         title: 'Update tf-modules to latest version'
