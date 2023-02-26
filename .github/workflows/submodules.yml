@@ -1,8 +1,8 @@
 name: Create PR for new submodule releases
 
-on:
-  schedule:
-    - cron: '0 0 * * *'  # once a day, at midnight
+on: push
+  # schedule:
+  #   - cron: '0 0 * * *'  # once a day, at midnight
 
 jobs:
   build:
