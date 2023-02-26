@@ -7,27 +7,27 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-      steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-      - name: Check for submodule changes
-        id: check_changes
-        run: |
-          cd terraform/tf-modules && git checkout main && git pull
-          SUBMODULE_HASH=`git ls-tree HEAD | awk '{print $3}'`
-          PARENT_HASH=`cat .gitmodules | grep "id = tf-modules" -A3 | awk 'FNR == 3 {print $3}'`
-          if [ $SUBMODULE_HASH != $PARENT_HASH ]; then
-            echo "::set-output name=updated::true"
-          else
-            echo "::set-output name=updated::false"
-          fi
-      - name: Create PR
-        if: steps.check_changes.outputs.updated == 'true'
-        uses: peter-evans/create-pull-request@v3
-        with:
-          commit-message: 'Update tf-modules to latest version'
-          title: 'Update tf-modules to latest version'
-          body: 'This PR updates tf-modules to the latest version.'
-          labels: 'submodule-update'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+    - name: Check for submodule changes
+      id: check_changes
+      run: |
+        cd terraform/tf-modules && git checkout main && git pull
+        SUBMODULE_HASH=`git ls-tree HEAD | awk '{print $3}'`
+        PARENT_HASH=`cat .gitmodules | grep "id = tf-modules" -A3 | awk 'FNR == 3 {print $3}'`
+        if [ $SUBMODULE_HASH != $PARENT_HASH ]; then
+          echo "::set-output name=updated::true"
+        else
+          echo "::set-output name=updated::false"
+        fi
+    - name: Create PR
+      if: steps.check_changes.outputs.updated == 'true'
+      uses: peter-evans/create-pull-request@v3
+      with:
+        commit-message: 'Update tf-modules to latest version'
+        title: 'Update tf-modules to latest version'
+        body: 'This PR updates tf-modules to the latest version.'
+        labels: 'submodule-update'
