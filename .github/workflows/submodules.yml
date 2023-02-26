@@ -31,3 +31,4 @@ jobs:
         title: 'Update tf-modules to latest version'
         body: 'This PR updates tf-modules to the latest version.'
         labels: 'submodule-update'
+
