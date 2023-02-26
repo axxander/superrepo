@@ -1,35 +1,39 @@
-name: Create PR for new submodule releases
+name: Update Terraform Common Submodule
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # once a day, at midnight
-  workflow_dispatch:  # able to manually trigger
+    - cron: '0 0 * * *' # Run once a day
+  workflow_dispatch: # Allows the workflow to be triggered manually
 
 jobs:
-  build:
+  update_submodule:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      with:
-        submodules: 'recursive'
-    - name: Check for submodule changes
-      id: check_changes
-      run: |
-        cd terraform/tf-modules && git checkout main && git pull
-        SUBMODULE_HASH=`git ls-tree HEAD | awk '{print $3}'`
-        PARENT_HASH=`cat .gitmodules | grep "id = tf-modules" -A3 | awk 'FNR == 3 {print $3}'`
-        if [ $SUBMODULE_HASH != $PARENT_HASH ]; then
-          echo "updated=true" >> $GITHUB_OUTPUT
-        else
-          echo "updated=false" >> $GITHUB_OUTPUT
-        fi
-    - name: Create PR
-      if: steps.check_changes.outputs.updated == 'true'
-      uses: peter-evans/create-pull-request@v4
-      with:
-        commit-message: 'Update tf-modules to latest version'
-        title: 'Update tf-modules to latest version'
-        body: 'This PR updates tf-modules to the latest version.'
-        labels: 'submodule-update'
-
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+          ref: ${{ github.ref }}
+      - name: Check for submodule changes
+        id: check_changes
+        run: |
+          # Check for changes in submodules
+          if ! git submodule update --remote --recursive --quiet; then
+            echo "updated=true" >> $GITHUB_OUTPUT
+            # Create a new branch for updating the submodule
+            cd submodule-directory && git checkout -b submodule-update
+            # Push the branch to the remote
+            git push origin submodule-update
+          else
+            echo "updated=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Create PR
+        if: steps.check_changes.outputs.has_changes == 'true'
+        uses: peter-evans/create-pull-request@v3
+        with:
+          commit-message: 'update tf-modules submodule'
+          title: 'Update `tf-modules` submodule'
+          body: 'This PR updates the `tf-modules` submodule to its latest versions.'
+          branch: 'submodule-update-tf-modules'
+          labels: 'submodule-update'
+          delete-branch: true
